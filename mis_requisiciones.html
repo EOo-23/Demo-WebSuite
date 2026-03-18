@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Autorizaciones pendientes</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+<style>
+
+/* ===== FONDO GENERAL ===== */
+body {
+  min-height: 100vh;
+  margin: 0;
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+}
+
+/* Overlay suave */
+.background-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(4px);
+  z-index: 0;
+}
+
+/* Contenido encima del overlay */
+.page-wrapper {
+  position: relative;
+  z-index: 1;
+}
+
+.container {
+  max-width: 1500px;
+}
+
+/* CARD */
+.card {
+  border-radius: 20px;
+  border: none;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 15px 40px rgba(0,0,0,0.12);
+  backdrop-filter: blur(14px);
+}
+
+h5 {
+  font-weight: 600;
+  font-size: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #111;
+}
+
+/* TABLA */
+table {
+  border-collapse: separate;
+  border-spacing: 0 10px;
+}
+
+thead th {
+  background: #f5f5fa;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: #6e6e73;
+  border: none;
+  padding: 12px;
+}
+
+tbody tr {
+  background: #ffffff;
+  border-radius: 14px;
+  transition: all 0.25s ease;
+}
+
+tbody tr:hover {
+  background: #f9f9fb;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+}
+
+tbody td {
+  padding: 14px;
+  vertical-align: middle;
+  border: none;
+  font-size: 0.92rem;
+}
+
+tbody tr td:first-child {
+  border-top-left-radius: 14px;
+  border-bottom-left-radius: 14px;
+}
+
+tbody tr td:last-child {
+  border-top-right-radius: 14px;
+  border-bottom-right-radius: 14px;
+}
+
+/* INPUT */
+.comentario-input {
+  width: 100%;
+  border-radius: 8px;
+  border: 1px solid #d2d2d7;
+  padding: 6px 10px;
+  font-size: 0.8rem;
+  margin-bottom: 6px;
+}
+
+.comentario-input:focus {
+  border-color: #007aff;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0,122,255,0.2);
+}
+
+/* BOTONES */
+.btn-approve {
+  background: #30d158;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  width: 100%;
+}
+
+.btn-approve:hover {
+  background: #28b94b;
+}
+
+.btn-reject {
+  background: #ff453a;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  width: 100%;
+}
+
+.btn-reject:hover {
+  background: #e03e34;
+}
+
+.action-box {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 180px;
+}
+
+.top-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.btn-dark-custom {
+  background: #1c1c1e;
+  color: #fff;
+  border-radius: 10px;
+  padding: 8px 14px;
+  font-size: 0.85rem;
+  border: none;
+}
+
+.btn-dark-custom:hover {
+  background: #000;
+}
+
+@media (max-width: 768px) {
+  .top-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+</style>
+</head>
+
+<!-- 👇 Imagen aplicada directamente aquí -->
+<body style="background-image: url('{{ url_for('static', filename='img/fondo.png') }}');">
+
+<div class="background-overlay"></div>
+
+<div class="page-wrapper">
+  <div class="container py-5">
+    <div class="card p-4">
+
+      <div class="top-actions">
+        <h5><i class="bi bi-check2-square"></i> Autorizaciones pendientes</h5>
+
+        {% if requisiciones %}
+        <div class="d-flex gap-2 flex-wrap">
+          <a class="btn-dark-custom" href="/solicitud">
+            <i class="bi bi-plus-circle"></i> Nueva requisición
+          </a>
+          <a class="btn-dark-custom" href="/mis_requisiciones">
+            <i class="bi bi-list-check"></i> Mis requisiciones
+          </a>
+          <a class="btn-dark-custom" href="/logout">
+            <i class="bi bi-box-arrow-right"></i> Salir
+          </a>
+        </div>
+        {% endif %}
+      </div>
+
+      {% if requisiciones %}
+      <div class="table-responsive mt-4">
+        <table class="table align-middle">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Solicitante</th>
+              <th>Departamento</th>
+              <th>Proyecto</th>
+              <th>Producto</th>
+              <th>Cantidad</th>
+              <th>Unidad</th>
+              <th>Motivo</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for r in requisiciones %}
+            <tr>
+              <td><strong>{{ r[0] }}</strong></td>
+              <td>{{ r[2] }}</td>
+              <td>{{ r[4] }}</td>
+              <td>{{ r[6] }}</td>
+              <td>{{ r[7] }}</td>
+              <td>{{ r[9] }}</td>
+              <td>{{ r[8] }}</td>
+              <td>{{ r[11] }}</td>
+              <td>
+                {% if session.get('role') == 'jefe' %}
+                <div class="action-box">
+                  <form method="POST">
+                    <input type="hidden" name="req_id" value="{{ r[0] }}">
+                    <input type="hidden" name="decision" value="aprobar">
+                    <input type="text" name="comentario" class="comentario-input" placeholder="Comentario (opcional)">
+                    <button class="btn-approve">
+                      <i class="bi bi-check-circle"></i> Aprobar
+                    </button>
+                  </form>
+
+                  <form method="POST">
+                    <input type="hidden" name="req_id" value="{{ r[0] }}">
+                    <input type="hidden" name="decision" value="rechazar">
+                    <input type="text" name="comentario" class="comentario-input" placeholder="Comentario (opcional)">
+                    <button class="btn-reject">
+                      <i class="bi bi-x-circle"></i> Rechazar
+                    </button>
+                  </form>
+                </div>
+                {% else %}
+                  <span class="text-muted">Sin acciones</span>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+        <div class="alert alert-info mt-4">
+          No hay requisiciones pendientes.
+        </div>
+      {% endif %}
+
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
